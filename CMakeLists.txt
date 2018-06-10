@@ -7,8 +7,6 @@ set(VERSION_MAJOR 0)
 set(VERSION_MINOR 1)
 set(VERSION_PATCH 0)
 
-
-
 set(PROJECT_SOURCE_DIR src)
 set(PROJECT_CONFIG_DIR config)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY bin)
@@ -19,6 +17,10 @@ configure_file(
 )
 
 
+find_package( Threads )
+
 include_directories("${PROJECT_SOURCE_DIR}")
 
 add_executable(Simple_C_Chat ${PROJECT_SOURCE_DIR}/helloWorld.c)
+
+target_link_libraries( Simple_C_Chat ${CMAKE_THREAD_LIBS_INIT} )
