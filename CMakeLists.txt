@@ -21,6 +21,6 @@ find_package( Threads )
 
 include_directories("${PROJECT_SOURCE_DIR}")
 
-add_executable(Simple_C_Chat ${PROJECT_SOURCE_DIR}/helloWorld.c)
+add_subdirectory(${PROJECT_SOURCE_DIR})
 
-target_link_libraries( Simple_C_Chat ${CMAKE_THREAD_LIBS_INIT} )
+
