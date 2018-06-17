@@ -3,6 +3,7 @@
 #include "simpleCChatConfig.h"
 #include "helloWorld.h"
 #include <pthread.h>
+
 int main(){
 	printf("Version %d.%d.%d\n", VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
 
