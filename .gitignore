@@ -9,6 +9,7 @@ compile_commands.json
 CTestTestfile.cmake
 
 .vs/
+bin/*
 bin/Simple_C_Chat
 bin/runUnitTests
 *`
