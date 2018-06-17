@@ -1,8 +1,6 @@
-dist: trusty
-sudo: require
-language: c
-compiler: gcc
-
+sudo: required
+language:
+  - c
 addons:
   apt:
     sources:
@@ -12,7 +10,5 @@ addons:
       - cmake
 
 script:
-  - cmake -Dtest=ON -DDEBUG=ON .
-  - make
-  - bin/runUnitTests
-	
+  - echo "Hello"
+
