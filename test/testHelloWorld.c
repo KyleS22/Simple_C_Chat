@@ -1,6 +1,11 @@
 
 #include <assert.h>
-#include "helloWorld.h"
+
+#ifdef _WIN32
+	#include "helloWindows.h"
+#else
+	#include "helloWorld.h"
+#endif
 
 
 int main(){
