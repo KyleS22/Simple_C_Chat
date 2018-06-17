@@ -10,5 +10,7 @@ addons:
       - cmake
 
 script:
-  - echo "Hello"
+  - cmake -DDEBUG=ON -Dtest=ON
+  - make
+  - bin/runUnitTests
 
