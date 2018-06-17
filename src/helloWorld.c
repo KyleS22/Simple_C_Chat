@@ -3,12 +3,14 @@
 #include "simpleCChatConfig.h"
 #include <pthread.h>
 #include "helloWorld.h"
+#include "debug.h"
 
 void *thread(void *ptr){
 
 	int num = *((int *) ptr);
 
 	printf("Greetings from thread %i!\n", num);
+	DEBUG_LOG("%s", "THIS IS A TEST FOR THE DEBUG\n");
 }
 
 
