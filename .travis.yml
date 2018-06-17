@@ -12,7 +12,7 @@ addons:
       - cmake
 
 script:
-	- cmake -Dtest=ON -DDEBUG=ON .
-	- make
-	- bin/runUnitTests
+  - cmake -Dtest=ON -DDEBUG=ON .
+  - make
+  - bin/runUnitTests
 	
