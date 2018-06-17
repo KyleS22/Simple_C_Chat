@@ -5,7 +5,11 @@ project(Simple_C_Chat)
 option(test "Build all tests." OFF)
 option(DEBUG "Allow debug logs" OFF)
 
-set(CMAKE_C_FLAGS "-g -Wall -Wextra")
+IF (WIN32)
+	set(CMAKE_C_FLAGS "-Wall")
+ELSE()
+	set(CMAKE_C_FLAGS "-g -Wall -Wextra")	
+ENDIF()
 
 if(DEBUG)
 	add_definitions(-DDEBUG)
