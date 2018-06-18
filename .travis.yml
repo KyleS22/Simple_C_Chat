@@ -1,7 +1,3 @@
-os:
- - linux
- - windows
-
 sudo: required
 language:
   - c
