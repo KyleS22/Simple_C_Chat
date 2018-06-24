@@ -25,6 +25,12 @@ set(PROJECT_CONFIG_DIR config)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
 set(TEST_DIR ${PROJECT_SOURCE_DIR}/test)
 set(INCLUDE_DIR ${PROJECT_SOURCE_DIR}/include)
+set(LIB_DIR ${PROJECT_SOURCE_DIR}/lib)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${LIB_DIR})
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${LIB_DIR})
+
+set(COMPONENTS_DIR ${PROJECT_SOURCE_DIR}/components)
+set(LIB_LIST ${COMPONENTS_DIR}/list/include)
 
 configure_file(
 	"${PROJECT_CONFIG_DIR}/simpleCChatConfig.h.in"
@@ -34,9 +40,16 @@ configure_file(
 
 find_package( Threads )
 
+include_directories(${LIB_LIST})
+
 include_directories("${SOURCE_DIR}")
 include_directories("${INCLUDE_DIR}")
+include_directories("${LIB_DIR}")
+
+add_subdirectory(${COMPONENTS_DIR})
+
 add_subdirectory(${SOURCE_DIR})
+
 
 
 if(test)
