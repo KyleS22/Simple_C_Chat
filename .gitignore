@@ -12,6 +12,7 @@ CTestTestfile.cmake
 bin/*
 bin/Simple_C_Chat
 bin/runUnitTests
+lib/*
 *`
 *.swp
 *.swo

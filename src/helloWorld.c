@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include "simpleCChatConfig.h"
 #include <pthread.h>
-#include "helloWorld.h"
+//#include "helloWorld.h"
 #include "debug.h"
 
 void *thread(void *ptr){
@@ -11,6 +11,8 @@ void *thread(void *ptr){
 
 	printf("Greetings from thread %i!\n", num);
 	DEBUG_LOG("%s", "THIS IS A TEST FOR THE DEBUG\n");
+
+	return 0;
 }
 
 
