@@ -4,7 +4,6 @@
 *     Kyle Seidenthal
 *    
 *     Nico Dimaano
-*
 * Date: 13-09-16
 * Description: Test cases for the list library
 */
