@@ -13,5 +13,6 @@ script:
   - cmake -DDEBUG=ON -Dtest=ON
   - make
   - bin/runListTests
+  - bin/runQueueTests
   - bin/runUnitTests
 
