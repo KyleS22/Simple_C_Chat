@@ -23,6 +23,17 @@
  */
 void *discoveryThread(void *args);
 
+
+/* 
+ * Function: discoveryReceiveThread
+ * --------------------------------
+ * A function for receiving discovery broadcast messages
+ *
+ * *args: void* arguments for pthreads
+ */
+void *discoveryReceiverThread(void *args);
+
+
 /*
  * Function: msgReceiveThread
  * --------------------------

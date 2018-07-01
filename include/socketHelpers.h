@@ -88,12 +88,13 @@ int initializeUDPServerSocket(char port[], struct addrinfo *serverInfo);
  *
  * host: The host to connect to
  * port: The port to connect to 
+ * broadcast: Boolean determining whether the socket may broadcast
  *
  * Return:
  *      The socket file descriptor for the port to communicate on
  *      -1 on failure
  */
-int initializeUDPClientSocket(char host[], char port[], struct addrinfo **serverInfo);
+int initializeUDPClientSocket(char host[], char port[], struct addrinfo **serverInfo, int broadcast);
 
 /*
  * Function: socketClose

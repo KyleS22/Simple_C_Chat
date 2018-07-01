@@ -139,7 +139,6 @@ void testQueueCount(){
 	int item2 = 2;
 	int item3 = 3;
 
-	void* dequeue;
 
 	int count;
 
@@ -167,19 +166,19 @@ void testQueueCount(){
 
 	assert(count == 3 && "The queue does not have 3 elements as expected");
 
-	dequeue = Dequeue(queue);
+	Dequeue(queue);
 
 	count = QueueCount(queue);
 
 	assert(count == 2 && "The queue does not have 2 elements as expected");
 
-	dequeue = Dequeue(queue);
+	Dequeue(queue);
 
 	count = QueueCount(queue);
 
 	assert(count == 1 && "The queue does not have 1 element as expected");
 
-	dequeue = Dequeue(queue);
+	Dequeue(queue);
 
 	count = QueueCount(queue);
 
