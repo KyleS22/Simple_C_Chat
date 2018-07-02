@@ -13,15 +13,25 @@
 #endif
  
 int main(){
+
+	char username[20];
+	
+
 	printf("Version %d.%d.%d\n", VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
 
 	printf("Welcome to simple chat!\n");
 	
+	printf("Please enter a user name: ");
+	
+	fgets(username, 20, stdin);
+
+	
+
 #ifdef __linux__
 
 	pthread_t discoverThread, discoverReceiveThread;
 
-	if(pthread_create(&discoverThread, NULL, discoveryThread, NULL) != 0){
+	if(pthread_create(&discoverThread, NULL, discoveryThread, (void*) &username) != 0){
 		perror("Error Creating Discover Thread");
 		exit(1);
 	}
@@ -30,6 +40,11 @@ int main(){
 		perror("Error Creating Discover Receive Thread");
 		exit(1);
 	}
+	
+	// TODO: Wait for exit 
+	
+
+//	exitChat();
 
 	pthread_join(discoverThread, NULL);
 	pthread_join(discoverReceiveThread, NULL);
