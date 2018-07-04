@@ -25,6 +25,8 @@ int keepAlive = 1;
 
 LIST *activeUsers;
 
+pthread_mutex_t activeUsersMutex = PTHREAD_MUTEX_INITIALIZER;
+
 /*
  * Exit the chat and clean up threads
  */
@@ -39,6 +41,8 @@ void exitChat(){
  * Discover other users on the network
  */
 void *discoveryThread(void *args){
+
+	int numBroadcasts = 0; 	// The number of broadcasts that have happened since the last check for dead connections
 	
 	char *username;
 	
@@ -62,10 +66,50 @@ void *discoveryThread(void *args){
 		}
 
 		DEBUG_LOG("%s", "Sent broadcast\n");
+		
+		numBroadcasts ++;
+		
+		// After a few broadcasts check each user to see of they are still active
+		if(numBroadcasts == MISSED_BROADCASTS_TO_DEACTIVATE_USER){
+			int numUsers = ListCount(activeUsers);
+		
+			DEBUG_LOG("%s%d\n", "Num users: ", numUsers);
+	
+			struct ACTIVE_USER curUser;			
+			
+			pthread_mutex_lock(&activeUsersMutex);
+
+			curUser = *(struct ACTIVE_USER *)ListFirst(activeUsers);
+			int i;
+			for(i = 0; i < numUsers-1; i++){
+				time_t currentTime = time(NULL);
+
+				time_t timestamp = curUser.timestamp;
+				
+				time_t difference = currentTime - timestamp;
+
+				DEBUG_LOG("%s%ld\n", "Time diff: ", difference);
+				
+				// If we have not received a broadcast from them in a while, remove them
+				if(difference > (BROADCAST_FREQUENCY * MISSED_BROADCASTS_TO_DEACTIVATE_USER)){
+					ListRemove(activeUsers);
+
+				// Otherwise advance in the list
+				}else{
+
+					curUser = *(struct ACTIVE_USER *)ListNext(activeUsers);
+				}
+
+				
+			}
+			
+			pthread_mutex_unlock(&activeUsersMutex);
+
+			numBroadcasts = 0;
+		}
 
 		sleep(BROADCAST_FREQUENCY);
 
-		// TODO: every MISSED_BROADCASTS_TO_DEACTIVATE_USER broadcasts, remove all users from activeUsers whose timestamps are older than BROADCAST_FREQUENCY * MISSED_BROADCASTS_TO_DEACTIVATE_USER
 
 	}
 
@@ -110,14 +154,19 @@ void *discoveryReceiverThread(void *args){
 		strcpy(newUser.username, buf);
 		newUser.timestamp = currentTime;
 		
+		pthread_mutex_lock(&activeUsersMutex);
+
+		// TODO: search list for duplicates and update timestamp
+		// TODO: If received from self, ignore
+
 		// add user to list of active users with timestamp
 		if(ListAppend(activeUsers, &newUser) != 0){
 			perror("Could not add new user");
 		}
-			
+		
+		pthread_mutex_unlock(&activeUsersMutex);			
 		// TODO: send reply
 		
-		// TODO: If received from self, ignore
 	
 	}
 
