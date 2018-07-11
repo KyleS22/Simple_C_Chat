@@ -2,7 +2,7 @@
 if(WIN32)
 	add_library(helloWorldLib helloWindows.c)
 else()
-	add_library(simpleChatLib linuxChatThreads.c socketHelpers.c)
+	add_library(simpleChatLib linuxChatThreads.c socketHelpers.c simpleChatProtocol.c)
 endif()
 
 

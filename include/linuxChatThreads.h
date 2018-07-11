@@ -13,21 +13,6 @@
 #ifndef LINUX_CHAT_THREADS
 #define LINUX_CHAT_THREADS
 
-struct ACTIVE_USER{
-	char username[20];
-	time_t timestamp;
-};
-
-
-extern int keepAlive; // Keep the threads running
-
-/*
- * Function: exitChat
- * ------------------
- * A function that signals all running threads to clean up and exit the program
- */
-void exitChat();
-
 /*
  * Function: discoveryThread
  * -------------------------
