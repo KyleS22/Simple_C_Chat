@@ -21,12 +21,21 @@ int numBroadcasts = 0;	// The number of broadcasts that have been sent
 LIST *activeUsers;
 
 /*
+* Free list items
+*/
+void itemFree(void* itemToBeFreed){
+	free(itemToBeFreed);
+}
+
+/*
  * Exit the chat and clean up threads
  */
 void exitChat(){
 	if(keepAlive == 1){
 		keepAlive = 0;
 	}
+
+	ListFree(activeUsers, itemFree);
 }
 
 
@@ -56,7 +65,6 @@ int checkInactiveUsers(){
 			time_t currentTime = time(NULL);
 			DEBUG_LOG("%s%ld\n", "Current Time: ", currentTime);
 			
-			// TODO: this timestamp is wrong
 			char* username = curUser->username;
 			DEBUG_LOG("%s%s\n", "User Name: ", username);
 			time_t timestamp = (time_t)curUser->timestamp;
@@ -131,6 +139,7 @@ int addNewUserToUserList(struct ACTIVE_USER *newUser){
 		return -1;
 	}
 
+	free(newUser);
 	return 0;
 	
 }
