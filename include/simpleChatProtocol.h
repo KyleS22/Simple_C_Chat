@@ -72,7 +72,7 @@ int checkInactiveUsers();
  *
  * return: A new ACTIVE_USER struct with the new user's info
  */
-struct ACTIVE_USER receiveNewUserBroadcast(int socketFd);
+struct ACTIVE_USER *receiveNewUserBroadcast(int socketFd);
 
 /*
  * Function addNewUserToUserList
@@ -86,7 +86,7 @@ struct ACTIVE_USER receiveNewUserBroadcast(int socketFd);
  * return: 0 on success
  * 	   -1 if the user could not be added to the list
  */
-int addNewUserToUserList(struct ACTIVE_USER newUser);
+int addNewUserToUserList(struct ACTIVE_USER *newUser);
 // TODO: Define functions
 
 

@@ -48,19 +48,18 @@ int checkInactiveUsers(){
 		
 		DEBUG_LOG("%s%d\n", "Num users: ", numUsers);
 	
-		struct ACTIVE_USER curUser;			
-			
-		curUser = *(struct ACTIVE_USER *)ListFirst(activeUsers);
+		struct ACTIVE_USER *curUser = (struct ACTIVE_USER *)ListFirst(activeUsers);
 		
 		int i;
 		for(i = 0; i < numUsers; i++){
 
-			DEBUG_LOG("%s%s\n", "Cur User: ", curUser.username);
 			time_t currentTime = time(NULL);
 			DEBUG_LOG("%s%ld\n", "Current Time: ", currentTime);
 			
 			// TODO: this timestamp is wrong
-			time_t timestamp = curUser.timestamp;
+			char* username = curUser->username;
+			DEBUG_LOG("%s%s\n", "User Name: ", username);
+			time_t timestamp = (time_t)curUser->timestamp;
 			DEBUG_LOG("%s%ld\n", "User Timestamp: ", timestamp);				
 			time_t difference = currentTime - timestamp;
 
@@ -73,7 +72,7 @@ int checkInactiveUsers(){
 			// Otherwise advance in the list
 			}else{
 
-				curUser = *(struct ACTIVE_USER *)ListNext(activeUsers);
+				curUser = (struct ACTIVE_USER *)ListNext(activeUsers);
 			}
 
 				
@@ -88,7 +87,7 @@ int checkInactiveUsers(){
 }
 
 
-struct ACTIVE_USER receiveNewUserBroadcast(int socketFd){
+struct ACTIVE_USER *receiveNewUserBroadcast(int socketFd){
 	int numbytes;				// Number of bytes 
 	socklen_t addrSize;			// Size of the address
 	struct sockaddr_storage theirAddr;	// The address to connect with
@@ -105,26 +104,30 @@ struct ACTIVE_USER receiveNewUserBroadcast(int socketFd){
 	DEBUG_LOG("%s%s\n", "Received ", buf);
 	
 	time_t currentTime = time(NULL);
+	DEBUG_LOG("%s%ld\n", "Current time: ", currentTime);
 	
-	struct ACTIVE_USER newUser;
+	struct ACTIVE_USER *newUser = malloc(sizeof(struct ACTIVE_USER));
 
-	strcpy(newUser.username, buf);
-	newUser.timestamp = currentTime;
+	strcpy(newUser->username, buf);
+	newUser->timestamp = currentTime;
 	
 	// TODO: get IP
 	
 	return newUser;
 }
 
-int addNewUserToUserList(struct ACTIVE_USER newUser){
+int addNewUserToUserList(struct ACTIVE_USER *newUser){
 	// TODO: search list for duplicates and update timestamp
 	// TODO: if received from self, ignore
 	
-	// add er tp list of active users with timestamp
 	
-	DEBUG_LOG("%s%ld\n", "New user timestamp: ", newUser.timestamp);
-		
-	if(ListAppend(activeUsers, &newUser) != 0){
+	DEBUG_LOG("%s%ld\n", "New user timestamp: ", newUser->timestamp);
+	
+	struct ACTIVE_USER userForList;
+	strcpy(userForList.username, newUser->username);
+	userForList.timestamp = newUser->timestamp;
+
+	if(ListAppend(activeUsers, &userForList) != 0){
 		return -1;
 	}
 

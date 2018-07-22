@@ -67,10 +67,11 @@ void *discoveryReceiverThread(void *args){
 	DEBUG_LOG("%s", "Listening for packets...\n");
 
 	while(keepAlive){
-		struct ACTIVE_USER newUser = receiveNewUserBroadcast(socketFd);
+		struct ACTIVE_USER *newUser;
+		newUser = receiveNewUserBroadcast(socketFd);
 
-		DEBUG_LOG("%s%s\n", "New Username: ", newUser.username);
-		DEBUG_LOG("%s%ld\n", "New User Time Stamp: ", newUser.timestamp);	
+		DEBUG_LOG("%s%s\n", "New Username: ", newUser->username);
+		DEBUG_LOG("%s%ld\n", "New User Time Stamp: ", newUser->timestamp);	
 		pthread_mutex_lock(&activeUsersMutex);
 		
 		addNewUserToUserList(newUser);
