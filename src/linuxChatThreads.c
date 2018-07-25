@@ -53,6 +53,11 @@ void *discoveryThread(void *args){
 
 
 void *discoveryReceiverThread(void *args){
+
+	char *username;
+
+	username = (char *) args;
+
 	// Socket stuff
 	activeUsers = ListCreate();
 	
@@ -76,9 +81,7 @@ void *discoveryReceiverThread(void *args){
 		
 		addNewUserToUserList(newUser);
 	
-		pthread_mutex_unlock(&activeUsersMutex);			
-		// TODO: send reply
-		
+		pthread_mutex_unlock(&activeUsersMutex);					
 	
 	}
 

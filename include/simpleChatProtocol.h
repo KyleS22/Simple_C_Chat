@@ -16,7 +16,7 @@
 #include "socketHelpers.h"
 #include <time.h>
 
-#define DISCOVER_PORT "4950"
+#define DISCOVER_PORT "4951"
 
 #define BROADCAST_FREQUENCY 10 // in seconds
 #define MISSED_BROADCASTS_TO_DEACTIVATE_USER 3	// The number of broadcasts that must be missed to consider a user offline
@@ -25,7 +25,8 @@
 struct ACTIVE_USER{
 	char username[20];
 	time_t timestamp;
-	// TODO: add ip address	
+	struct sockaddr_storage thierAddr;
+	socklen_t addrSize;
 };
 
 

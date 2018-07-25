@@ -118,8 +118,8 @@ struct ACTIVE_USER *receiveNewUserBroadcast(int socketFd){
 
 	strcpy(newUser->username, buf);
 	newUser->timestamp = currentTime;
-	
-	// TODO: get IP
+	newUser->thierAddr = theirAddr;
+	newUser->addrSize = addrSize;
 	
 	return newUser;
 }
@@ -134,12 +134,22 @@ int addNewUserToUserList(struct ACTIVE_USER *newUser){
 	struct ACTIVE_USER userForList;
 	strcpy(userForList.username, newUser->username);
 	userForList.timestamp = newUser->timestamp;
+	userForList.thierAddr = newUser->thierAddr;
+	userForList.addrSize = newUser->addrSize;
 
 	if(ListAppend(activeUsers, &userForList) != 0){
 		return -1;
 	}
 
+	// TODO: Loop through list and display user names for user to select
+
 	free(newUser);
 	return 0;
 	
+}
+
+struct ACTIVE_USER selectChatUser(int selection){
+	struct ACTIVE_USER selectedUser;
+	// TODO: Take user input and return list item so we can connect
+	return selectedUser;
 }

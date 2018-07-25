@@ -36,7 +36,7 @@ int main(){
 		exit(1);
 	}
 
-	if(pthread_create(&discoverReceiveThread, NULL, discoveryReceiverThread, NULL) != 0){
+	if(pthread_create(&discoverReceiveThread, NULL, discoveryReceiverThread, (void*) &username) != 0){
 		perror("Error Creating Discover Receive Thread");
 		exit(1);
 	}
