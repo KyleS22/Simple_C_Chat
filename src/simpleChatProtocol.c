@@ -63,15 +63,11 @@ int checkInactiveUsers(){
 		for(i = 0; i < numUsers; i++){
 
 			time_t currentTime = time(NULL);
-			DEBUG_LOG("%s%ld\n", "Current Time: ", currentTime);
-			
-			char* username = curUser->username;
-			DEBUG_LOG("%s%s\n", "User Name: ", username);
+
 			time_t timestamp = (time_t)curUser->timestamp;
-			DEBUG_LOG("%s%ld\n", "User Timestamp: ", timestamp);				
+			
 			time_t difference = currentTime - timestamp;
 
-			DEBUG_LOG("%s%ld\n", "Time diff: ", difference);
 				
 			// If we have not received a broadcast from them in a while, remove them
 			if(difference > (BROADCAST_FREQUENCY * MISSED_BROADCASTS_TO_DEACTIVATE_USER)){
@@ -140,16 +136,44 @@ int addNewUserToUserList(struct ACTIVE_USER *newUser){
 	if(ListAppend(activeUsers, &userForList) != 0){
 		return -1;
 	}
-
-	// TODO: Loop through list and display user names for user to select
-
+	
 	free(newUser);
 	return 0;
 	
 }
 
-struct ACTIVE_USER selectChatUser(int selection){
-	struct ACTIVE_USER selectedUser;
-	// TODO: Take user input and return list item so we can connect
+int displayActiveUsers(){
+	if(activeUsers == NULL){
+		return -1;
+	}
+
+	// Loop through list and display user names for user to select
+	if(ListCount(activeUsers) <= 0){
+		return -1;
+	}
+
+	struct ACTIVE_USER *curUser = (struct ACTIVE_USER *)ListFirst(activeUsers);
+
+	int i;
+	for(i = 0; i < ListCount(activeUsers); i++){
+		printf("%i - %s\n", (i), curUser->username);
+		curUser = (struct ACTIVE_USER *)ListNext(activeUsers);
+	}
+
+
+	return 0;
+}
+
+struct ACTIVE_USER *selectChatUser(int selection){
+	struct ACTIVE_USER *selectedUser = (struct ACTIVE_USER *)ListFirst(activeUsers);
+	
+	// Take user input and return list item so we can connect
+
+	int i = 0;
+	while(i != selection){
+		i ++;
+		selectedUser = (struct ACTIVE_USER *)ListNext(activeUsers);
+	}
+
 	return selectedUser;
 }

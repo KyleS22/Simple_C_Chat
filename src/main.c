@@ -29,7 +29,7 @@ int main(){
 
 #ifdef __linux__
 
-	pthread_t discoverThread, discoverReceiveThread;
+	pthread_t discoverThread, discoverReceiveThread, inputThread;
 
 	if(pthread_create(&discoverThread, NULL, discoveryThread, (void*) &username) != 0){
 		perror("Error Creating Discover Thread");
@@ -40,6 +40,11 @@ int main(){
 		perror("Error Creating Discover Receive Thread");
 		exit(1);
 	}
+
+	if(pthread_create(&inputThread, NULL, userInputThread, NULL) != 0){
+		perror("Error creating user input thread");
+		exit(1);
+	}
 	
 	// TODO: Wait for exit 
 	
@@ -48,6 +53,7 @@ int main(){
 
 	pthread_join(discoverThread, NULL);
 	pthread_join(discoverReceiveThread, NULL);
+	pthread_join(inputThread, NULL);
 
 #else
 	int *thr = malloc(sizeof(*thr));

@@ -88,7 +88,31 @@ struct ACTIVE_USER *receiveNewUserBroadcast(int socketFd);
  * 	   -1 if the user could not be added to the list
  */
 int addNewUserToUserList(struct ACTIVE_USER *newUser);
-// TODO: Define functions
+
+
+/*
+ * Function selectChatUser
+ * -----------------------
+ * 
+ * Given an integer position of an active user in the list, return that struct from the list
+ * 
+ * selectedUser: The index in the list of the desired user
+ * 
+ * return: The selected user
+ * 		   NULL on failure 
+ */
+struct ACTIVE_USER *selectChatUser(int selectedUser);
+
+/**
+ * Function displayActiveUsers
+ * ---------------------------
+ * 
+ * Print the list of currently available users.
+ * 
+ * Return: 0 on success
+ * 		   -1 if the list is empty
+ */
+int displayActiveUsers();
 
 
 #endif // SIMPLE_CHAT_PROTOCOL

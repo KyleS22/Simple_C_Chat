@@ -54,9 +54,9 @@ void *discoveryThread(void *args){
 
 void *discoveryReceiverThread(void *args){
 
-	char *username;
+	//char *username;
 
-	username = (char *) args;
+	//username = (char *) args;
 
 	// Socket stuff
 	activeUsers = ListCreate();
@@ -75,8 +75,6 @@ void *discoveryReceiverThread(void *args){
 		struct ACTIVE_USER *newUser;
 		newUser = receiveNewUserBroadcast(socketFd);
 
-		DEBUG_LOG("%s%s\n", "New Username: ", newUser->username);
-		DEBUG_LOG("%s%ld\n", "New User Time Stamp: ", newUser->timestamp);	
 		pthread_mutex_lock(&activeUsersMutex);
 		
 		addNewUserToUserList(newUser);
@@ -117,7 +115,49 @@ void *msgSendThread(void *args){
  */
 void *userInputThread(void *args){
 
-	// TODO: Get user input
+	int menu = 1;
+	int connectedToUser = 1;
+	int userChoice;
+	struct ACTIVE_USER *selectedUser;
+	char userInput[288];
+
+	while(menu){
+		if(displayActiveUsers() != 0){
+			continue;
+		}
+		printf("Enter the number of the user you wish to connect with or -1 to refresh: \n");
+		scanf("%d", &userChoice);
+		
+		if(userChoice == -1){
+			continue;
+		}
+	
+		pthread_mutex_lock(&activeUsersMutex);
+		selectedUser = selectChatUser(userChoice);
+		pthread_mutex_unlock(&activeUsersMutex);
+
+		printf("Connecting to %s...\n", selectedUser->username);
+
+		if(selectedUser != NULL){
+			// Connect to the selected user
+			connectedToUser = 1;
+			// We are in chat mode
+			printf("You are now connected to %sType messages and press enter to send.\nEnter \\q to quit.\n", selectedUser->username);
+
+			while(connectedToUser){
+				scanf("%s", userInput);
+
+				if(strcmp(userInput, "\\q") == 0){
+					printf("Disconnecting from %s...\n", selectedUser->username);
+					connectedToUser = 0;
+				}else{
+					// TODO: Add message to outgoing message queue
+				}
+			}
+		}
+	}
+
+	
 	
 	return 0;
 }
