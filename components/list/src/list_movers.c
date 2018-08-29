@@ -91,9 +91,9 @@ void *ListCurr(LIST *list){
 void *ListSearch(LIST *list, int (*comparator)(void *item, void *comparisonArg), void *comparisonArg){
 	int compare;
 	/* If list is null, print and error message */
-       	if(list == NULL){
+    if(list == NULL){
 		printf("Error in procedure ListSearch(): Invalid parameter list\n");
-       	}
+    }
 	
 	/* Make sure the current pointer is not NULL */
 	if(list->cur == NULL){
@@ -101,29 +101,31 @@ void *ListSearch(LIST *list, int (*comparator)(void *item, void *comparisonArg),
 		return NULL;
 	}	
 
-       	/* Check that the comparator function is callable */
-       	compare = (*comparator)(list->cur->item, list->cur->item);
-       	if(compare != 1){
-	       printf("Error in procedure ListSearch(): Invalid parameter (*comparator)(void *item)\n");
-       	}
-      
-       	/* If the comparisonArg is null, print an error message*/
-       	if(comparisonArg == NULL){
-	       printf("Error in procedure ListSearch(): Invalid parameter comparisonArg\n");
-       	}
+	/* Check that the comparator function is callable */
+	compare = (*comparator)(list->cur->item, list->cur->item);
 
-	compare = 0;
+	if(compare != 1){
+		printf("Error in procedure ListSearch(): Invalid parameter (*comparator)(void *item)\n");
+	}
+	
+	/* If the comparisonArg is null, print an error message*/
+	if(comparisonArg == NULL){
+		printf("Error in procedure ListSearch(): Invalid parameter comparisonArg\n");
+	}
+
+	
 	/* While we can still go forward in the list and a match is not found */
-	while(list->cur->next != NULL && compare == 0){
+	do {
 		compare = (*comparator)(list->cur->item, comparisonArg);	/* Compare the items */
 		if(compare == 1){
 			return list->cur->item;		/* Return the item */
 		}else{
 			list->cur = list->cur->next;	/* Advance one item */
 		}
-	}
 
-       	return NULL;
+	} while(list->cur->next != NULL && compare == 0);
+
+	return NULL;
 }
 
 

@@ -77,7 +77,9 @@ void *discoveryReceiverThread(void *args){
 
 		pthread_mutex_lock(&activeUsersMutex);
 		
-		addNewUserToUserList(newUser);
+		if(addNewUserToUserList(newUser) == -1){
+			DEBUG_ERR("%s", "The new user was not added to the list.");
+		}
 	
 		pthread_mutex_unlock(&activeUsersMutex);					
 	

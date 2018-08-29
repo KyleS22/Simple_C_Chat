@@ -27,6 +27,16 @@ void itemFree(void* itemToBeFreed){
 	free(itemToBeFreed);
 }
 
+int comparator(void *item, void *comparisonArg){
+	if(strcmp(((struct ACTIVE_USER *)item)->username, ((struct ACTIVE_USER *)comparisonArg)->username) == 0){
+		DEBUG_LOG("%s", "They are the same!\n");
+		return 1;
+	}else{
+		DEBUG_LOG("%s", "They are different\n");
+		return 0;
+	}
+}
+
 /*
  * Exit the chat and clean up threads
  */
@@ -121,25 +131,48 @@ struct ACTIVE_USER *receiveNewUserBroadcast(int socketFd){
 }
 
 int addNewUserToUserList(struct ACTIVE_USER *newUser){
-	// TODO: search list for duplicates and update timestamp
+
 	// TODO: if received from self, ignore
 	
+	// TODO: search list for duplicates and update timestamp
+	void* searchItem =  NULL;
 	
-	DEBUG_LOG("%s%ld\n", "New user timestamp: ", newUser->timestamp);
-	
-	struct ACTIVE_USER userForList;
-	strcpy(userForList.username, newUser->username);
-	userForList.timestamp = newUser->timestamp;
-	userForList.thierAddr = newUser->thierAddr;
-	userForList.addrSize = newUser->addrSize;
-
-	if(ListAppend(activeUsers, &userForList) != 0){
-		return -1;
+	if(ListCount(activeUsers) > 0){
+		ListFirst(activeUsers);
+		searchItem = ListSearch(activeUsers, *comparator, newUser);
 	}
+
 	
-	free(newUser);
-	return 0;
-	
+	if(searchItem == NULL){
+		DEBUG_LOG("%s%ld\n", "New user timestamp: ", newUser->timestamp);
+		
+		struct ACTIVE_USER userForList;
+		strcpy(userForList.username, newUser->username);
+		userForList.timestamp = newUser->timestamp;
+		userForList.thierAddr = newUser->thierAddr;
+		userForList.addrSize = newUser->addrSize;
+
+		if(ListAppend(activeUsers, &userForList) != 0){
+			DEBUG_ERR("%s\n", "Problem adding new user");
+			return -1;
+		}
+		
+		free(newUser);
+		return 0;
+
+	} else {
+		// We need to update the timestamp
+
+		DEBUG_LOG("%s%ld\n\n", "Old timestamp: ", ((struct ACTIVE_USER*)searchItem)->timestamp);
+
+		memcpy(&((struct ACTIVE_USER *)ListCurr(activeUsers))->timestamp, &newUser->timestamp, sizeof newUser->timestamp);
+
+		DEBUG_LOG("%s%ld\n\n", "Updated timestamp: ", ((struct ACTIVE_USER*)searchItem)->timestamp);
+
+		return 0;
+	}
+
+	return -1;
 }
 
 int displayActiveUsers(){
