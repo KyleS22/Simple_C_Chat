@@ -17,7 +17,7 @@
 #include <time.h>
 
 pthread_mutex_t activeUsersMutex = PTHREAD_MUTEX_INITIALIZER;
-
+pthread_mutex_t outgoingMessageMutex = PTHREAD_MUTEX_INITIALIZER;
 
 /*
  * Discover other users on the network
@@ -89,13 +89,19 @@ void *discoveryReceiverThread(void *args){
 
 }
 
+void *acceptChatConnectionsThread(void *args){
+	startChatServer();
+
+	return 0;
+}
+
 /*
  * Receive incoming messages from connected users
  */
 void *msgReceiveThread(void *args){
 
 	// TODO: Receive incoming messages from a TCP socket
-	
+
 	
 
 	return 0;
@@ -108,6 +114,16 @@ void *msgReceiveThread(void *args){
 void *msgSendThread(void *args){
 	// TODO: Send outgoing messages to a TCP socket
 	
+		
+	while(keepAlive){
+		
+		if(messagesToSend() == 1){
+			pthread_mutex_lock(&outgoingMessageMutex);
+			sendNextMessage();
+			pthread_mutex_unlock(&outgoingMessageMutex);
+		}
+	}
+
 	return 0;
 	
 }
@@ -140,20 +156,37 @@ void *userInputThread(void *args){
 
 		printf("Connecting to %s...\n", selectedUser->username);
 
+		// TODO: Need to establish client connection
+
 		if(selectedUser != NULL){
 			// Connect to the selected user
-			connectedToUser = 1;
+			if(connectToUser(selectedUser->thierAddr) == 0){
+				connectedToUser = 1;
+			} else {
+				printf("Unable to connect...");
+			}
+			
 			// We are in chat mode
-			printf("You are now connected to %sType messages and press enter to send.\nEnter \\q to quit.\n", selectedUser->username);
+			printf("You are now connected to %s Type messages and press enter to send.\nEnter \\q to quit.\n", selectedUser->username);
 
 			while(connectedToUser){
-				scanf("%s", userInput);
+				fgets(userInput, sizeof userInput, stdin);
+				DEBUG_LOG("User Input: %s\n", userInput);
+
+				if((strlen(userInput) > 0) && (userInput[strlen(userInput) - 1] == '\n')){
+					userInput[strlen(userInput) - 1] = '\0';
+				}
 
 				if(strcmp(userInput, "\\q") == 0){
 					printf("Disconnecting from %s...\n", selectedUser->username);
 					connectedToUser = 0;
 				}else{
-					// TODO: Add message to outgoing message queue
+					//Add message to outgoing message queue
+					pthread_mutex_lock(&outgoingMessageMutex);
+
+					addOutgoingMessage(userInput);
+
+					pthread_mutex_unlock(&outgoingMessageMutex);
 				}
 			}
 		}

@@ -13,12 +13,19 @@
 #include "list.h"
 #include "socketHelpers.h"
 #include <time.h>
+#include <stdio.h>
 
 
 int keepAlive = 1;  // Keep the threads alive
 int numBroadcasts = 0;	// The number of broadcasts that have been sent
 
+int chatSocketFD; // Socket descriptor for chatting with other users
+int listenSocketFD; // Socket to listen for new connections on
+
+int acceptingConnections = 1;	// Whether we are currently accepting new connectin requests
+
 LIST *activeUsers;
+QUEUE *outgoingMessages;
 
 /*
 * Free list items
@@ -45,7 +52,12 @@ void exitChat(){
 		keepAlive = 0;
 	}
 
+	if(acceptingConnections == 1) {
+		acceptingConnections = 0;
+	}
+
 	ListFree(activeUsers, itemFree);
+	ListFree(outgoingMessages->list, itemFree);
 }
 
 
@@ -133,8 +145,7 @@ struct ACTIVE_USER *receiveNewUserBroadcast(int socketFd){
 int addNewUserToUserList(struct ACTIVE_USER *newUser){
 
 	// TODO: if received from self, ignore
-	
-	// TODO: search list for duplicates and update timestamp
+	// Search list for duplicates and update timestamp
 	void* searchItem =  NULL;
 	
 	if(ListCount(activeUsers) > 0){
@@ -209,4 +220,101 @@ struct ACTIVE_USER *selectChatUser(int selection){
 	}
 
 	return selectedUser;
+}
+
+
+int addOutgoingMessage(char message[]){
+	if (outgoingMessages == NULL){
+		outgoingMessages = QueueCreate();
+	}
+
+	if(Enqueue(outgoingMessages, &message) == -1){
+		DEBUG_ERR("%s\n", "There was an error adding the message to the queue.");
+	}
+
+	return 0;
+}
+
+
+int messagesToSend(){
+
+	if(outgoingMessages == NULL) {
+		return 0;
+	}
+
+	if(QueueCount(outgoingMessages) > 0) {
+		return 1;
+	} else {
+		return 0;
+	}
+}
+
+int sendNextMessage(){
+	char* messageToSend = (char*) Dequeue(outgoingMessages);
+	
+	if(send(chatSocketFD, messageToSend, sizeof messageToSend, 0) == -1){
+		perror("Failed to send message.");
+	}
+
+	return 0;
+}
+
+int connectToUser(struct sockaddr_storage theirAddr) {
+	char host[INET6_ADDRSTRLEN];
+
+	inet_ntop(theirAddr.ss_family,
+		getInAddr((struct sockaddr *)&theirAddr),
+		host, sizeof(host));
+
+	DEBUG_LOG("Connecting to IP: %s \n\n", host);
+
+	// Create a socket for communitcations
+
+	chatSocketFD = initializeTCPClientSocket(host, LISTEN_PORT);
+
+	if(chatSocketFD == -1){
+		return -1;
+	}
+
+	return 0;	
+}
+
+int startChatServer(){
+	socklen_t sinSize;
+	struct sockaddr_storage theirAddr;
+	char addressString[INET6_ADDRSTRLEN];
+
+	char choice[1];
+
+	listenSocketFD = initializeTCPServerSocket(LISTEN_PORT);
+
+	while(keepAlive == 1) {
+		while(acceptingConnections == 1) {
+			chatSocketFD = accept(listenSocketFD, (struct sockaddr *)&theirAddr, &sinSize);
+
+			if(chatSocketFD == -1) {
+				perror("accept");
+				continue;
+			}
+
+			inet_ntop(theirAddr.ss_family,
+				getInAddr((struct sockaddr *)&theirAddr),
+				addressString, sizeof addressString);
+
+			DEBUG_LOG("Server: got connection from %s\n", addressString);
+
+			printf("Received connection.  Would you like to connect? (y/n) ");
+			fgets(choice, sizeof choice, stdin);
+
+			if(strcmp(choice, "y") == 0) {
+				acceptingConnections = 0;
+				// TODO: This needs to abort the userInput thread so we can get into chat mode
+			}
+		}
+	}
+
+	socketClose(listenSocketFD);
+	socketClose(chatSocketFD);
+
+	return 0;
 }

@@ -3,7 +3,6 @@
 * author:
 *     kyle seidenthal
 *     kts135
-*     11178642
 *
 * date: 26-02-18
 * description Definitions for debug macros:

@@ -17,6 +17,8 @@
 #include <time.h>
 
 #define DISCOVER_PORT "4951"
+#define CHAT_PORT "4952"
+#define LISTEN_PORT "4953"
 
 #define BROADCAST_FREQUENCY 10 // in seconds
 #define MISSED_BROADCASTS_TO_DEACTIVATE_USER 3	// The number of broadcasts that must be missed to consider a user offline
@@ -33,6 +35,7 @@ struct ACTIVE_USER{
 extern int keepAlive; // Keep all threads running
 extern int numBroadcasts; // The number of broadcasts we have sent
 extern LIST *activeUsers;
+extern QUEUE *outgoingMessages;
 
 /*
  * Function: exitChat
@@ -114,5 +117,61 @@ struct ACTIVE_USER *selectChatUser(int selectedUser);
  */
 int displayActiveUsers();
 
+/**
+ * Function addOutgoingMessage
+ * ----------------------------
+ * 
+ * Add a string to the outgoing message queue
+ * 
+ * Return: 0 on success
+ * 		   -1 if the message was not added
+ */
+int addOutgoingMessage(char message[]);
+
+
+/**
+ * Function messagesToSend
+ * -----------------------
+ * 
+ * Check to see if there are messages in the outgoing queue
+ * 
+ * Return: 0 if there are no messages to send
+ * 		   1 if there are messages to send
+ */
+int messagesToSend();
+
+/**
+ * Function sendNextMessage
+ * ------------------------
+ * 
+ * Send the next message in the outgoing message queue
+ * 
+ * Return 0 if successful
+ */
+int sendNextMessage();
+
+
+/**
+ * Function connectToUser
+ * ----------------------
+ * 
+ * Create a TCP connection with the given user
+ * Param theirAddr: A sockaddr_storage type containing the address to connect with
+ * 
+ * Return: 0 on success
+ * 		   -1 on failure
+ * 
+ */ 
+int connectToUser(struct sockaddr_storage theirAddr);
+
+/**
+ * 	Function startChatServer
+ *  ------------------------
+ * 
+ * Start a listener connection to accept chat requests from other users.
+ * 
+ * Return: 0 when the server is terminated
+ */
+int startChatServer();
 
 #endif // SIMPLE_CHAT_PROTOCOL

@@ -29,7 +29,7 @@ int main(){
 
 #ifdef __linux__
 
-	pthread_t discoverThread, discoverReceiveThread, inputThread;
+	pthread_t discoverThread, discoverReceiveThread, inputThread, chatAcceptThread, sendMessagesThread;
 
 	if(pthread_create(&discoverThread, NULL, discoveryThread, (void*) &username) != 0){
 		perror("Error Creating Discover Thread");
@@ -46,6 +46,17 @@ int main(){
 		exit(1);
 	}
 	
+	
+	if(pthread_create(&chatAcceptThread, NULL, acceptChatConnectionsThread, NULL) != 0){
+		perror("Error creating chat connectionst thread");
+		exit(1);
+	}
+
+	if(pthread_create(&sendMessagesThread, NULL, msgSendThread, NULL) != 0){
+		perror("Error creating message send thread");
+		exit(1);
+	}
+
 	// TODO: Wait for exit 
 	
 
@@ -54,6 +65,8 @@ int main(){
 	pthread_join(discoverThread, NULL);
 	pthread_join(discoverReceiveThread, NULL);
 	pthread_join(inputThread, NULL);
+	pthread_join(chatAcceptThread, NULL);
+	pthread_join(sendMessagesThread, NULL);
 
 #else
 	int *thr = malloc(sizeof(*thr));

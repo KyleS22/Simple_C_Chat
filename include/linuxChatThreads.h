@@ -35,6 +35,14 @@ void *discoveryThread(void *args);
 void *discoveryReceiverThread(void *args);
 
 
+/**
+ * Function: acceptChatConnectionsThread
+ * --------------------------------------
+ * 
+ * Thread for accepting a chat request 
+ */
+void *acceptChatConnectionsThread(void *args);
+
 /*
  * Function: msgReceiveThread
  * --------------------------
