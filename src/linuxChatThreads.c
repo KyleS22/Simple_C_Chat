@@ -146,10 +146,12 @@ void *userInputThread(void *args){
 		printf("Enter the number of the user you wish to connect with or -1 to refresh: \n");
 		scanf("%d", &userChoice);
 		
+		DEBUG_ERR("USER CHOIDE: %d", userChoice);
+		
 		if(userChoice == -1){
 			continue;
 		}
-	
+
 		pthread_mutex_lock(&activeUsersMutex);
 		selectedUser = selectChatUser(userChoice);
 		pthread_mutex_unlock(&activeUsersMutex);

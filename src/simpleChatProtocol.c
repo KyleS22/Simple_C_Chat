@@ -22,7 +22,7 @@ int numBroadcasts = 0;	// The number of broadcasts that have been sent
 int chatSocketFD; // Socket descriptor for chatting with other users
 int listenSocketFD; // Socket to listen for new connections on
 
-int acceptingConnections = 1;	// Whether we are currently accepting new connectin requests
+int acceptingConnections = 1;	// Whether we are currently accepting new connection requests
 
 LIST *activeUsers;
 QUEUE *outgoingMessages;
@@ -309,6 +309,8 @@ int startChatServer(){
 			if(strcmp(choice, "y") == 0) {
 				acceptingConnections = 0;
 				// TODO: This needs to abort the userInput thread so we can get into chat mode
+			} else {
+				socketClose(chatSocketFD);
 			}
 		}
 	}
