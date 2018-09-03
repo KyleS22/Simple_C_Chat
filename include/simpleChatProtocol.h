@@ -34,6 +34,8 @@ struct ACTIVE_USER{
 
 extern int keepAlive; // Keep all threads running
 extern int numBroadcasts; // The number of broadcasts we have sent
+extern int gotConnection; 
+
 extern LIST *activeUsers;
 extern QUEUE *outgoingMessages;
 
@@ -173,5 +175,13 @@ int connectToUser(struct sockaddr_storage theirAddr);
  * Return: 0 when the server is terminated
  */
 int startChatServer();
+
+/**
+ * 	Function closeChatConnection
+ * 	----------------------------
+ * 
+ * Close the chat file socket descriptor if it is open
+ */
+int closeChatConnection();
 
 #endif // SIMPLE_CHAT_PROTOCOL

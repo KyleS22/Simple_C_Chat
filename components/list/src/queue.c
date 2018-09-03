@@ -29,8 +29,6 @@ int QueueCount(struct QUEUE *queue){
 int Enqueue(struct QUEUE *queue, void* item){
 	int ret = ListAppend(queue->list, item);
 	
-	DEBUG_LOG("%s %d\n", "Return value of list append:", ret);
-
 	return ret;
 }
 

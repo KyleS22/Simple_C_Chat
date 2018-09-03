@@ -18,6 +18,7 @@
 
 int keepAlive = 1;  // Keep the threads alive
 int numBroadcasts = 0;	// The number of broadcasts that have been sent
+int gotConnection = 0;
 
 int chatSocketFD; // Socket descriptor for chatting with other users
 int listenSocketFD; // Socket to listen for new connections on
@@ -36,10 +37,8 @@ void itemFree(void* itemToBeFreed){
 
 int comparator(void *item, void *comparisonArg){
 	if(strcmp(((struct ACTIVE_USER *)item)->username, ((struct ACTIVE_USER *)comparisonArg)->username) == 0){
-		DEBUG_LOG("%s", "They are the same!\n");
 		return 1;
 	}else{
-		DEBUG_LOG("%s", "They are different\n");
 		return 0;
 	}
 }
@@ -65,9 +64,7 @@ int sendDiscoveryBroadcast(int socketFd, struct addrinfo *servinfo, char *userna
 	if(sendto(socketFd, username, sizeof(username), 0, servinfo->ai_addr, servinfo->ai_addrlen) == -1){
 		perror("send");
 	}
-	
-	DEBUG_LOG("%s", "Sent broadcast\n");
-	
+		
 	numBroadcasts ++;
 
 	return 0;
@@ -130,7 +127,6 @@ struct ACTIVE_USER *receiveNewUserBroadcast(int socketFd){
 	DEBUG_LOG("%s%s\n", "Received ", buf);
 	
 	time_t currentTime = time(NULL);
-	DEBUG_LOG("%s%ld\n", "Current time: ", currentTime);
 	
 	struct ACTIVE_USER *newUser = malloc(sizeof(struct ACTIVE_USER));
 
@@ -144,7 +140,6 @@ struct ACTIVE_USER *receiveNewUserBroadcast(int socketFd){
 
 int addNewUserToUserList(struct ACTIVE_USER *newUser){
 
-	// TODO: if received from self, ignore
 	// Search list for duplicates and update timestamp
 	void* searchItem =  NULL;
 	
@@ -154,9 +149,7 @@ int addNewUserToUserList(struct ACTIVE_USER *newUser){
 	}
 
 	
-	if(searchItem == NULL){
-		DEBUG_LOG("%s%ld\n", "New user timestamp: ", newUser->timestamp);
-		
+	if(searchItem == NULL){		
 		struct ACTIVE_USER userForList;
 		strcpy(userForList.username, newUser->username);
 		userForList.timestamp = newUser->timestamp;
@@ -174,11 +167,7 @@ int addNewUserToUserList(struct ACTIVE_USER *newUser){
 	} else {
 		// We need to update the timestamp
 
-		DEBUG_LOG("%s%ld\n\n", "Old timestamp: ", ((struct ACTIVE_USER*)searchItem)->timestamp);
-
 		memcpy(&((struct ACTIVE_USER *)ListCurr(activeUsers))->timestamp, &newUser->timestamp, sizeof newUser->timestamp);
-
-		DEBUG_LOG("%s%ld\n\n", "Updated timestamp: ", ((struct ACTIVE_USER*)searchItem)->timestamp);
 
 		return 0;
 	}
@@ -284,7 +273,7 @@ int startChatServer(){
 	struct sockaddr_storage theirAddr;
 	char addressString[INET6_ADDRSTRLEN];
 
-	char choice[1];
+	//char choice[1];
 
 	listenSocketFD = initializeTCPServerSocket(LISTEN_PORT);
 
@@ -304,14 +293,16 @@ int startChatServer(){
 			DEBUG_LOG("Server: got connection from %s\n", addressString);
 
 			printf("Received connection.  Would you like to connect? (y/n) ");
-			fgets(choice, sizeof choice, stdin);
 
-			if(strcmp(choice, "y") == 0) {
-				acceptingConnections = 0;
-				// TODO: This needs to abort the userInput thread so we can get into chat mode
-			} else {
-				socketClose(chatSocketFD);
-			}
+			return 1;
+			// fgets(choice, sizeof choice, stdin);
+
+			// if(strcmp(choice, "y") == 0) {
+			// 	acceptingConnections = 0;
+			// 	// TODO: This needs to abort the userInput thread so we can get into chat mode
+			// } else {
+			// 	socketClose(chatSocketFD);
+			// }
 		}
 	}
 
@@ -319,4 +310,10 @@ int startChatServer(){
 	socketClose(chatSocketFD);
 
 	return 0;
+}
+
+int closeChatConnection(){
+	socketClose(chatSocketFD);
+
+	return 1;
 }

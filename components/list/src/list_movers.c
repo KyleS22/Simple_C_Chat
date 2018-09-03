@@ -123,7 +123,7 @@ void *ListSearch(LIST *list, int (*comparator)(void *item, void *comparisonArg),
 			list->cur = list->cur->next;	/* Advance one item */
 		}
 
-	} while(list->cur->next != NULL && compare == 0);
+	} while(list->cur != NULL && compare == 0);
 
 	return NULL;
 }

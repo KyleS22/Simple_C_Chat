@@ -15,6 +15,7 @@
 #include "socketHelpers.h"
 #include <pthread.h>
 #include <time.h>
+#include <sys/select.h>
 
 pthread_mutex_t activeUsersMutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t outgoingMessageMutex = PTHREAD_MUTEX_INITIALIZER;
@@ -27,8 +28,6 @@ void *discoveryThread(void *args){
 	char *username;
 	
 	username = (char *) args;
-
-	DEBUG_LOG("%s%s\n", "Username is: ", username);
 		
 	// Socket stuff
 	
@@ -54,9 +53,9 @@ void *discoveryThread(void *args){
 
 void *discoveryReceiverThread(void *args){
 
-	//char *username;
+	char *username;
 
-	//username = (char *) args;
+	username = (char *) args;
 
 	// Socket stuff
 	activeUsers = ListCreate();
@@ -75,6 +74,11 @@ void *discoveryReceiverThread(void *args){
 		struct ACTIVE_USER *newUser;
 		newUser = receiveNewUserBroadcast(socketFd);
 
+		// IGNORE connection from self
+		if(strcmp(newUser->username, username) == 0){
+			continue;
+		}		
+
 		pthread_mutex_lock(&activeUsersMutex);
 		
 		if(addNewUserToUserList(newUser) == -1){
@@ -90,7 +94,12 @@ void *discoveryReceiverThread(void *args){
 }
 
 void *acceptChatConnectionsThread(void *args){
-	startChatServer();
+	
+	while(keepAlive){
+		if(gotConnection == 0){
+			gotConnection = startChatServer();
+		}
+	}
 
 	return 0;
 }
@@ -135,46 +144,67 @@ void *userInputThread(void *args){
 
 	int menu = 1;
 	int connectedToUser = 1;
-	int userChoice;
+	char userChoiceChar[1];
+	int userChoice = -1;
 	struct ACTIVE_USER *selectedUser;
 	char userInput[288];
 
-	while(menu){
-		if(displayActiveUsers() != 0){
-			continue;
-		}
-		printf("Enter the number of the user you wish to connect with or -1 to refresh: \n");
-		scanf("%d", &userChoice);
-		
-		DEBUG_ERR("USER CHOIDE: %d", userChoice);
-		
-		if(userChoice == -1){
-			continue;
-		}
 
-		pthread_mutex_lock(&activeUsersMutex);
-		selectedUser = selectChatUser(userChoice);
-		pthread_mutex_unlock(&activeUsersMutex);
-
-		printf("Connecting to %s...\n", selectedUser->username);
-
-		// TODO: Need to establish client connection
-
-		if(selectedUser != NULL){
-			// Connect to the selected user
-			if(connectToUser(selectedUser->thierAddr) == 0){
-				connectedToUser = 1;
-			} else {
-				printf("Unable to connect...");
+	while(keepAlive){
+		if(menu){
+			
+			if(displayActiveUsers() != 0){
+				continue;
 			}
 			
-			// We are in chat mode
-			printf("You are now connected to %s Type messages and press enter to send.\nEnter \\q to quit.\n", selectedUser->username);
+			printf("Enter the number of the user you wish to connect with or -1 to refresh: \n");
 
-			while(connectedToUser){
+			fgets(userChoiceChar, sizeof userChoiceChar, stdin);
+			
+			if(gotConnection == 1){
+				
+				if(strcmp(userChoiceChar, "y") == 0) {
+					menu = 0;
+					connectedToUser = 1;
+				} else {
+					closeChatConnection();
+				}
+			}
+
+			userChoice = atoi(userChoiceChar);
+
+
+			if(userChoice == -1){
+				continue;
+			}
+
+			pthread_mutex_lock(&activeUsersMutex);
+			selectedUser = selectChatUser(userChoice);
+			pthread_mutex_unlock(&activeUsersMutex);
+
+			printf("Connecting to %s...\n", selectedUser->username);
+
+			if(selectedUser != NULL){
+				// Connect to the selected user
+				if(connectToUser(selectedUser->thierAddr) == 0){
+					connectedToUser = 1;
+					menu = 0;
+					
+				} else {
+					printf("Unable to connect...");
+					continue;
+				}
+				
+				// We are in chat mode
+				printf("You are now connected to %s Type messages and press enter to send.\nEnter \\q to quit.\n", selectedUser->username);
+				
+			}
+		
+
+			
+		} else if(connectedToUser) {
+
 				fgets(userInput, sizeof userInput, stdin);
-				DEBUG_LOG("User Input: %s\n", userInput);
-
 				if((strlen(userInput) > 0) && (userInput[strlen(userInput) - 1] == '\n')){
 					userInput[strlen(userInput) - 1] = '\0';
 				}
@@ -182,6 +212,8 @@ void *userInputThread(void *args){
 				if(strcmp(userInput, "\\q") == 0){
 					printf("Disconnecting from %s...\n", selectedUser->username);
 					connectedToUser = 0;
+					menu = 1;
+					gotConnection = 0;
 				}else{
 					//Add message to outgoing message queue
 					pthread_mutex_lock(&outgoingMessageMutex);
@@ -190,12 +222,10 @@ void *userInputThread(void *args){
 
 					pthread_mutex_unlock(&outgoingMessageMutex);
 				}
-			}
+
 		}
 	}
 
-	
-	
 	return 0;
 }
 
