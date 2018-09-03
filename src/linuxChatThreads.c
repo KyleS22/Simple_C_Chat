@@ -168,8 +168,10 @@ void *userInputThread(void *args){
 				if(strcmp(userChoiceChar, "y") == 0) {
 					menu = 0;
 					connectedToUser = 1;
+					continue;
 				} else {
 					closeChatConnection();
+					continue;
 				}
 			}
 

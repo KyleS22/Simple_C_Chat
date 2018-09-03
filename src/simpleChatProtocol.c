@@ -291,7 +291,7 @@ int startChatServer(){
 				addressString, sizeof addressString);
 
 			DEBUG_LOG("Server: got connection from %s\n", addressString);
-
+			fflush(stdin);
 			printf("Received connection.  Would you like to connect? (y/n) ");
 
 			return 1;
