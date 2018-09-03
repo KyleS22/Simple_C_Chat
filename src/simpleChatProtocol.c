@@ -134,6 +134,14 @@ struct ACTIVE_USER *receiveNewUserBroadcast(int socketFd){
 	newUser->timestamp = currentTime;
 	newUser->thierAddr = theirAddr;
 	newUser->addrSize = addrSize;
+
+	char host[INET6_ADDRSTRLEN];
+
+	inet_ntop(theirAddr.ss_family,
+		getInAddr((struct sockaddr *)&theirAddr),
+		host, sizeof(host));
+
+	DEBUG_LOG("RECEIVED IP: %s \n\n", host);
 	
 	return newUser;
 }
@@ -207,6 +215,17 @@ struct ACTIVE_USER *selectChatUser(int selection){
 		i ++;
 		selectedUser = (struct ACTIVE_USER *)ListNext(activeUsers);
 	}
+
+	DEBUG_ERR("USERNAME %s\n", selectedUser->username);
+
+	char host[INET6_ADDRSTRLEN];
+	struct sockaddr_storage theirAddr = selectedUser->thierAddr;
+
+	inet_ntop(theirAddr.ss_family,
+		getInAddr((struct sockaddr *)&theirAddr),
+		host, sizeof(host));
+
+	DEBUG_LOG("RECEIVED IP: %s \n\n", host);
 
 	return selectedUser;
 }

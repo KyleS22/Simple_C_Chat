@@ -74,6 +74,16 @@ void *discoveryReceiverThread(void *args){
 		struct ACTIVE_USER *newUser;
 		newUser = receiveNewUserBroadcast(socketFd);
 
+		char host[INET6_ADDRSTRLEN];
+
+		struct sockaddr_storage theirAddr = newUser->thierAddr;
+
+		inet_ntop(theirAddr.ss_family,
+			getInAddr((struct sockaddr *)&theirAddr),
+			host, sizeof(host));
+
+		DEBUG_LOG("RECEIVED IP: %s \n\n", host);
+
 		// IGNORE connection from self
 		if(strcmp(newUser->username, username) == 0){
 			continue;
@@ -152,10 +162,12 @@ void *userInputThread(void *args){
 
 	while(keepAlive){
 		if(menu){
-			
+			pthread_mutex_lock(&activeUsersMutex);
 			if(displayActiveUsers() != 0){
+				pthread_mutex_unlock(&activeUsersMutex);
 				continue;
 			}
+			pthread_mutex_unlock(&activeUsersMutex);
 			
 			printf("Enter the number of the user you wish to connect with or -1 to refresh: \n");
 
@@ -166,6 +178,7 @@ void *userInputThread(void *args){
 			if(gotConnection == 1){
 				DEBUG_LOG("%s\n", "Got new connection, input");
 				if(strcmp(userChoiceChar, "y") == 0) {
+					printf("Accepting connection from user\n");
 					menu = 0;
 					connectedToUser = 1;
 					continue;
