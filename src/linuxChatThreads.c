@@ -159,10 +159,12 @@ void *userInputThread(void *args){
 			
 			printf("Enter the number of the user you wish to connect with or -1 to refresh: \n");
 
-			fgets(userChoiceChar, sizeof userChoiceChar, stdin);
-			
+			//fgets(userChoiceChar, sizeof userChoiceChar, stdin);
+			scanf("%s", userChoiceChar);
+			DEBUG_LOG("FGETS %s\n", userChoiceChar);
+
 			if(gotConnection == 1){
-				
+				DEBUG_LOG("%s\n", "Got new connection, input");
 				if(strcmp(userChoiceChar, "y") == 0) {
 					menu = 0;
 					connectedToUser = 1;
@@ -172,7 +174,7 @@ void *userInputThread(void *args){
 			}
 
 			userChoice = atoi(userChoiceChar);
-
+			DEBUG_LOG("USER CHOICE: %d", userChoice);
 
 			if(userChoice == -1){
 				continue;
